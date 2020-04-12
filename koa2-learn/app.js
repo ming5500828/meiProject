@@ -5,6 +5,10 @@ const json = require('koa-json')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
+const pv = require('./middleware/koa-pv')
+const m1 = require('./middleware/m1')
+const m2 = require('./middleware/m2')
+const m3 = require('./middleware/m3')
 
 const index = require('./routes/index')
 const users = require('./routes/users')
@@ -13,16 +17,25 @@ const users = require('./routes/users')
 onerror(app)
 
 // middlewares
-app.use(bodyparser({
-  enableTypes:['json', 'form', 'text']
-}))
+app.use(
+  bodyparser({
+    enableTypes: ['json', 'form', 'text'],
+  })
+)
+app.use(pv())
+app.use(m1())
+app.use(m2())
+app.use(m3())
+
 app.use(json())
 app.use(logger())
 app.use(require('koa-static')(__dirname + '/public'))
 
-app.use(views(__dirname + '/views', {
-  extension: 'ejs'
-}))
+app.use(
+  views(__dirname + '/views', {
+    extension: 'ejs',
+  })
+)
 
 // logger
 app.use(async (ctx, next) => {
@@ -39,6 +52,6 @@ app.use(users.routes(), users.allowedMethods())
 // error-handling
 app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)
-});
+})
 
 module.exports = app
